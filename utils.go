@@ -64,3 +64,26 @@ func Memoize[T comparable, R any](f FuncT2R[T, R]) FuncT2R[T, R] {
 		return cache[param]
 	}
 }
+
+const invalidSource = "Entry not chan/slice"
+
+func Copy[T any, E ~[]T | ~chan T](entry E) E {
+	v := any(entry)
+	if s, ok := v.([]T); ok {
+		return any(Pack(s...)).(E)
+	}
+	if c, ok := v.(chan T); ok {
+		cache := make(chan T, len(c))
+		defer close(cache)
+		output := make(chan T, len(c))
+		for item := range c {
+			cache <- item
+			output <- item
+		}
+		for item := range cache {
+			c <- item
+		}
+		return any(output).(E)
+	}
+	panic(invalidSource)
+}
