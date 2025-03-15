@@ -1,14 +1,6 @@
 package functools
 
-type FuncT2T[T any] func(T) T
-
-type FuncT2R[T, R any] func(T) R
-
-type FuncNone2T[T any] func() T
-
-type FuncTs2R[T, R any] func(...T) R
-
-type FuncT2Ts[T any] func(T) []T
+import "sync"
 
 func Decorate[T any](wrapper FuncT2T[T], f T) T {
 	return wrapper(f)
@@ -30,7 +22,7 @@ func Partial[T, R any](f FuncTs2R[T, R], params ...T) FuncTs2R[T, R] {
 	}
 }
 
-func Stream[T any](f ...FuncT2T[T]) FuncT2T[T] {
+func Pipe[T any](f ...FuncT2T[T]) FuncT2T[T] {
 	return func(param T) T {
 		output := param
 		for _, fn := range f {
@@ -40,12 +32,35 @@ func Stream[T any](f ...FuncT2T[T]) FuncT2T[T] {
 	}
 }
 
-func Batch[T any](f ...FuncT2T[T]) FuncT2Ts[T] {
+func Batch[T any](parallel bool, f ...FuncT2T[T]) FuncT2Ts[T] {
 	return func(param T) []T {
 		output := make([]T, len(f))
-		for i, fn := range f {
-			output[i] = fn(param)
+		if !parallel {
+			for i, fn := range f {
+				output[i] = fn(param)
+			}
+		} else {
+			var wg sync.WaitGroup
+			wg.Add(len(f))
+			for i, fn := range f {
+				go func() {
+					output[i] = fn(param)
+					wg.Done()
+				}()
+			}
+			wg.Wait()
 		}
 		return output
+	}
+}
+
+func Memoize[T comparable, R any](f FuncT2R[T, R]) FuncT2R[T, R] {
+	cache := make(map[T]R)
+	return func(param T) R {
+		if v, ok := cache[param]; ok {
+			return v
+		}
+		cache[param] = f(param)
+		return cache[param]
 	}
 }
