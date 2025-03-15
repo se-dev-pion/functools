@@ -1,6 +1,9 @@
 package functools
 
-func Reduce4Slice[T any, E ~[]T](handler func(T, T) T, entry E, initial ...T) (result T) {
+const invalidParam = "No initial value"
+
+func Reduce4Slice[T any, E ~[]T](handler func(T, T) T, entry E, initial ...T) FuncNone2T[T] {
+	var result T
 	switch {
 	case len(initial) > 0:
 		result = initial[0]
@@ -8,15 +11,18 @@ func Reduce4Slice[T any, E ~[]T](handler func(T, T) T, entry E, initial ...T) (r
 		result = entry[0]
 		entry = entry[1:]
 	default:
-		panic("No initial value")
+		panic(invalidParam)
 	}
-	for _, item := range entry {
-		result = handler(result, item)
+	return func() T {
+		for _, item := range entry {
+			result = handler(result, item)
+		}
+		return result
 	}
-	return
 }
 
-func Reduce4String(handler func(string, string) string, entry string, initial ...string) (result string) {
+func Reduce4String(handler func(string, string) string, entry string, initial ...string) FuncNone2T[string] {
+	var result string
 	switch {
 	case len(initial) > 0:
 		result = initial[0]
@@ -26,34 +32,37 @@ func Reduce4String(handler func(string, string) string, entry string, initial ..
 			break
 		}
 	default:
-		panic("No initial value")
+		panic(invalidParam)
 	}
-	for _, charCode := range entry {
-		result = handler(result, string(charCode))
+	return func() string {
+		for _, charCode := range entry {
+			result = handler(result, string(charCode))
+		}
+		return result
 	}
-	return
 }
 
-func Reduce4Chan[T any, E ~chan T](handler func(T, T) T, entry E, initial ...T) (result T) {
-	var cache chan T
-	switch {
-	case len(initial) > 0:
-		cache = make(chan T, len(entry))
-		result = initial[0]
-	case len(entry) > 0:
-		cache = make(chan T, len(entry))
-		result = <-entry
-		cache <- result
-	default:
-		panic("No initial value")
+func Reduce4Chan[T any, E ~chan T](handler func(T, T) T, entry E, initial ...T) FuncNone2T[T] {
+	if len(initial)|len(entry) == 0 {
+		panic(invalidParam)
 	}
-	defer close(cache)
-	for item := range entry {
-		cache <- item
-		result = handler(result, item)
+	return func() (result T) {
+		cache := make(chan T, len(entry))
+		defer close(cache)
+		switch {
+		case len(initial) > 0:
+			result = initial[0]
+		case len(entry) > 0:
+			result = <-entry
+			cache <- result
+		}
+		for item := range entry {
+			cache <- item
+			result = handler(result, item)
+		}
+		for item := range cache {
+			entry <- item
+		}
+		return
 	}
-	for item := range cache {
-		entry <- item
-	}
-	return
 }
