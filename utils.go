@@ -43,10 +43,10 @@ func Batch[T any](parallel bool, f ...FuncT2T[T]) FuncT2Ts[T] {
 			var wg sync.WaitGroup
 			wg.Add(len(f))
 			for i, fn := range f {
-				go func() {
-					output[i] = fn(param)
+				go func(idx int, fun FuncT2T[T]) {
+					output[idx] = fun(param)
 					wg.Done()
-				}()
+				}(i, fn)
 			}
 			wg.Wait()
 		}
