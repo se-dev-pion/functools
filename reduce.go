@@ -1,6 +1,6 @@
 package functools
 
-func Reduce4Slice[T any, E ~[]T](handler func(T, T) T, entry E, initial ...T) FuncNone2T[T] {
+func reduce4Slice[T any, E ~[]T](handler FuncMergeT[T], entry E, initial ...T) FuncNone2T[T] {
 	var result T
 	switch {
 	case len(initial) > 0:
@@ -19,7 +19,7 @@ func Reduce4Slice[T any, E ~[]T](handler func(T, T) T, entry E, initial ...T) Fu
 	}
 }
 
-func Reduce4String(handler func(string, string) string, entry string, initial ...string) FuncNone2T[string] {
+func reduce4String(handler FuncMergeT[string], entry string, initial ...string) FuncNone2T[string] {
 	var result string
 	switch {
 	case len(initial) > 0:
@@ -40,7 +40,7 @@ func Reduce4String(handler func(string, string) string, entry string, initial ..
 	}
 }
 
-func Reduce4Chan[T any, E ~chan T](handler func(T, T) T, entry E, initial ...T) FuncNone2T[T] {
+func reduce4Chan[T any, E ~chan T](handler FuncMergeT[T], entry E, initial ...T) FuncNone2T[T] {
 	if len(initial)|len(entry) == 0 {
 		return nil
 	}
@@ -62,5 +62,22 @@ func Reduce4Chan[T any, E ~chan T](handler func(T, T) T, entry E, initial ...T) 
 			entry <- item
 		}
 		return
+	}
+}
+
+func Reduce[T any, E ~[]T | ~string | ~chan T](handler FuncMergeT[T], entry E, initial ...T) FuncNone2T[T] {
+	v := any(entry)
+	switch e := v.(type) {
+	case []T:
+		return reduce4Slice(handler, e, initial...)
+	case string:
+		if _, ok := any(*new(T)).(string); !ok {
+			return nil
+		}
+		return any(reduce4String(any(handler).(FuncMergeT[string]), e, any(initial).([]string)...)).(FuncNone2T[T])
+	case chan T:
+		return reduce4Chan(handler, e)
+	default:
+		return nil
 	}
 }
