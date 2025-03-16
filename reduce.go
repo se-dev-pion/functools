@@ -1,7 +1,5 @@
 package functools
 
-const invalidParam = "No initial value"
-
 func Reduce4Slice[T any, E ~[]T](handler func(T, T) T, entry E, initial ...T) FuncNone2T[T] {
 	var result T
 	switch {
@@ -11,7 +9,7 @@ func Reduce4Slice[T any, E ~[]T](handler func(T, T) T, entry E, initial ...T) Fu
 		result = entry[0]
 		entry = entry[1:]
 	default:
-		panic(invalidParam)
+		return nil
 	}
 	return func() T {
 		for _, item := range entry {
@@ -32,7 +30,7 @@ func Reduce4String(handler func(string, string) string, entry string, initial ..
 			break
 		}
 	default:
-		panic(invalidParam)
+		return nil
 	}
 	return func() string {
 		for _, charCode := range entry {
@@ -44,7 +42,7 @@ func Reduce4String(handler func(string, string) string, entry string, initial ..
 
 func Reduce4Chan[T any, E ~chan T](handler func(T, T) T, entry E, initial ...T) FuncNone2T[T] {
 	if len(initial)|len(entry) == 0 {
-		panic(invalidParam)
+		return nil
 	}
 	return func() (result T) {
 		cache := make(chan T, len(entry))

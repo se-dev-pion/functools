@@ -65,8 +65,6 @@ func Memoize[T comparable, R any](f FuncT2R[T, R]) FuncT2R[T, R] {
 	}
 }
 
-const invalidSource = "Entry not chan/slice"
-
 func Copy[T any, E ~[]T | ~chan T](entry E) E {
 	v := any(entry)
 	switch e := v.(type) {
@@ -85,6 +83,6 @@ func Copy[T any, E ~[]T | ~chan T](entry E) E {
 		}
 		return any(output).(E)
 	default:
-		panic(invalidSource)
+		return nil
 	}
 }
