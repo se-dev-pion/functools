@@ -9,15 +9,43 @@ import (
 
 func TestAny(t *testing.T) {
 	convey.Convey("slice", t, func() {
-		var err error
-		assert.Nil(t, err)
+		arr := []int{1, 2, 3, 4, 5}
+		f := func(x int) bool {
+			return x%2 == 0
+		}
+		assert.True(t, Any(f, arr))
+		assert.False(t, Any(f, []int{}))
 	})
 	convey.Convey("string", t, func() {
-		var err error
-		assert.Nil(t, err)
+		seq := "golang"
+		f := func(x string) bool {
+			return x >= "g"
+		}
+		assert.True(t, Any(f, seq))
+		assert.False(t, Any(f, ""))
+		convey.Convey("invalid func", func() {
+			f := func(x int) bool {
+				return x > 0
+			}
+			assert.False(t, Any(f, seq))
+			assert.False(t, Any(f, ""))
+		})
 	})
 	convey.Convey("chan", t, func() {
-		var err error
-		assert.Nil(t, err)
+		ch := make(chan int, 10)
+		for i := 1; i <= 5; i++ {
+			ch <- i
+		}
+		f := func(x int) bool {
+			return x%2 == 0
+		}
+		assert.True(t, Any(f, ch))
+		assert.False(t, Any(f, make(chan int, 1)))
+		convey.Convey("close chan", func() {
+			close(ch)
+			assert.Panics(t, func() {
+				Any(f, ch)
+			})
+		})
 	})
 }
