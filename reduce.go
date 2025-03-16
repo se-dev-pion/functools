@@ -45,20 +45,31 @@ func reduce4Chan[T any, E ~chan T](handler FuncMergeT[T], entry E, initial ...T)
 		return nil
 	}
 	return func() (result T) {
-		cache := make(chan T, len(entry))
-		defer close(cache)
+		cache := make([]T, len(entry))
+		i := 0
 		switch {
 		case len(initial) > 0:
 			result = initial[0]
 		case len(entry) > 0:
 			result = <-entry
-			cache <- result
+			cache[i] = result
+			i++
 		}
-		for item := range entry {
-			cache <- item
-			result = handler(result, item)
+		for {
+			select {
+			case item, ok := <-entry:
+				if !ok {
+					goto END
+				}
+				cache[i] = item
+				i++
+				result = handler(result, item)
+			default:
+				goto END
+			}
 		}
-		for item := range cache {
+	END:
+		for _, item := range cache {
 			entry <- item
 		}
 		return

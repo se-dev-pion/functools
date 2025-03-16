@@ -22,14 +22,24 @@ func map4String(handler FuncT2T[string], entry string) FuncNone2T[string] {
 
 func map4Chan[T, U any, E ~chan T, R ~chan U](handler FuncT2R[T, U], entry E) FuncNone2T[R] {
 	return func() R {
-		output := make(R, len(entry))
-		cache := make(chan T, len(entry))
-		defer close(cache)
-		for item := range entry {
-			cache <- item
-			output <- handler(item)
+		output := make(R, cap(entry))
+		cache := make([]T, len(entry))
+		i := 0
+		for {
+			select {
+			case item, ok := <-entry:
+				if !ok {
+					goto END
+				}
+				cache[i] = item
+				i++
+				output <- handler(item)
+			default:
+				goto END
+			}
 		}
-		for item := range cache {
+	END:
+		for _, item := range cache {
 			entry <- item
 		}
 		return output

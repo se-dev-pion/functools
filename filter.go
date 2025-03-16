@@ -26,16 +26,26 @@ func filter4String(condition FuncT2Bool[string], entry string) FuncNone2T[string
 
 func filter4Chan[T any, E ~chan T](condition FuncT2Bool[T], entry E) FuncNone2T[E] {
 	return func() E {
-		output := make(E, len(entry))
-		cache := make(chan T, len(entry))
-		defer close(cache)
-		for item := range entry {
-			cache <- item
-			if condition(item) {
-				output <- item
+		output := make(E, cap(entry))
+		cache := make([]T, len(entry))
+		i := 0
+		for {
+			select {
+			case item, ok := <-entry:
+				if !ok {
+					goto END
+				}
+				cache[i] = item
+				i++
+				if condition(item) {
+					output <- item
+				}
+			default:
+				goto END
 			}
 		}
-		for item := range cache {
+	END:
+		for _, item := range cache {
 			entry <- item
 		}
 		return output

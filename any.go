@@ -20,15 +20,23 @@ func any4String(condition FuncT2Bool[string], entry string) bool {
 
 func any4Chan[T any, E ~chan T](condition FuncT2Bool[T], entry E) bool {
 	success := false
-	cache := make(chan T, len(entry))
-	defer close(cache)
-	for item := range entry {
-		cache <- item
-		if !success && condition(item) {
-			success = true
+	cache := make([]T, len(entry))
+	i := 0
+	for {
+		select {
+		case item, ok := <-entry:
+			if !ok {
+				goto END
+			}
+			cache[i] = item
+			i++
+			success = success || condition(item)
+		default:
+			goto END
 		}
 	}
-	for item := range cache {
+END:
+	for _, item := range cache {
 		entry <- item
 	}
 	return success
