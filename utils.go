@@ -69,21 +69,22 @@ const invalidSource = "Entry not chan/slice"
 
 func Copy[T any, E ~[]T | ~chan T](entry E) E {
 	v := any(entry)
-	if s, ok := v.([]T); ok {
-		return any(Pack(s...)).(E)
-	}
-	if c, ok := v.(chan T); ok {
-		cache := make(chan T, len(c))
+	switch e := v.(type) {
+	case []T:
+		return any(Pack(e...)).(E)
+	case chan T:
+		cache := make(chan T, len(e))
 		defer close(cache)
-		output := make(chan T, len(c))
-		for item := range c {
+		output := make(chan T, len(e))
+		for item := range e {
 			cache <- item
 			output <- item
 		}
 		for item := range cache {
-			c <- item
+			e <- item
 		}
 		return any(output).(E)
+	default:
+		panic(invalidSource)
 	}
-	panic(invalidSource)
 }
