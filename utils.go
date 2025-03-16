@@ -54,7 +54,7 @@ func Batch[T any](parallel bool, f ...FuncT2T[T]) FuncT2Ts[T] {
 	}
 }
 
-func Memoize[T comparable, R any](f FuncT2R[T, R]) FuncT2R[T, R] {
+func Cached[T comparable, R any](f FuncT2R[T, R]) FuncT2R[T, R] {
 	cache := make(map[T]R)
 	return func(param T) R {
 		if v, ok := cache[param]; ok {
