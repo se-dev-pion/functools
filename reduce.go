@@ -29,6 +29,7 @@ func reduce4String(handler FuncMergeT[string], entry string, initial ...string) 
 			result = string(charCode)
 			break
 		}
+		entry = entry[1:]
 	default:
 		return nil
 	}
@@ -87,7 +88,7 @@ func Reduce[T any, E ~[]T | ~string | ~chan T](handler FuncMergeT[T], entry E, i
 		}
 		return any(reduce4String(any(handler).(FuncMergeT[string]), e, any(initial).([]string)...)).(FuncNone2T[T])
 	case chan T:
-		return reduce4Chan(handler, e)
+		return reduce4Chan(handler, e, initial...)
 	default:
 		return nil
 	}

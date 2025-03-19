@@ -1,6 +1,7 @@
 package functools
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/smartystreets/goconvey/convey"
@@ -9,15 +10,39 @@ import (
 
 func TestReduce(t *testing.T) {
 	convey.Convey("slice", t, func() {
-		var err error
-		assert.Nil(t, err)
+		arr := []int{1, 2, 3, 4, 5}
+		f := func(a, b int) int {
+			return a + b
+		}
+		total := 1 + 2 + 3 + 4 + 5
+		assert.Equal(t, total, Reduce(f, arr)())
+		convey.Convey("initial", func() {
+			assert.Equal(t, total+6, Reduce(f, arr, 6)())
+		})
 	})
 	convey.Convey("string", t, func() {
-		var err error
-		assert.Nil(t, err)
+		seq := "golang"
+		f := func(a, b string) string {
+			return strings.ToUpper(a) + strings.ToUpper(b)
+		}
+		total := "GOLANG"
+		assert.Equal(t, total, Reduce(f, seq)())
+		convey.Convey("initial", func() {
+			assert.Equal(t, "GOOGLE"+total, Reduce(f, seq, "GOOGLE")())
+		})
 	})
 	convey.Convey("chan", t, func() {
-		var err error
-		assert.Nil(t, err)
+		ch := make(chan int, 10)
+		for i := 1; i <= 5; i++ {
+			ch <- i
+		}
+		f := func(a, b int) int {
+			return a + b
+		}
+		total := 1 + 2 + 3 + 4 + 5
+		assert.Equal(t, total, Reduce(f, ch)())
+		convey.Convey("initial", func() {
+			assert.Equal(t, total+6, Reduce(f, ch, 6)())
+		})
 	})
 }
