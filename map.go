@@ -58,7 +58,7 @@ func Map[R ~[]U | ~string | ~chan U, T, U any, E ~[]T | ~string | ~chan T](handl
 		if _, ok := any(*new(U)).(string); !ok {
 			return nil
 		}
-		return any(map4String(any(handler).(FuncT2T[string]), e)).(FuncNone2T[R])
+		return any(map4String(FuncT2T[string](any(handler).(FuncT2R[string, string])), e)).(FuncNone2T[R])
 	case chan T:
 		return any(map4Chan[T, U, chan T, chan U](handler, e)).(FuncNone2T[R])
 	default:
