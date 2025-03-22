@@ -41,7 +41,7 @@ func reduce4String(handler FuncMergeT[string], entry string, initial ...string) 
 	}
 }
 
-func Reduce[T any, E ~[]T | ~string | ~chan T](handler FuncMergeT[T], entry E, initial ...T) FuncNone2T[T] {
+func Reduce[T any, E Sequence[T] | ~string](handler FuncMergeT[T], entry E, initial ...T) FuncNone2T[T] {
 	v := any(entry)
 	switch e := v.(type) {
 	case []T:

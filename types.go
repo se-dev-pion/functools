@@ -13,3 +13,7 @@ type FuncTs2R[T, R any] func(...T) R
 type FuncT2Bool[T any] FuncT2R[T, bool]
 
 type FuncMergeT[T any] func(T, T) T
+
+type Sequence[T any] interface {
+	~[]T | ~chan T
+}

@@ -89,7 +89,7 @@ END:
 	return output
 }
 
-func Copy[T any, E ~[]T | ~chan T](entry E) (copy E) {
+func Copy[T any, E Sequence[T]](entry E) (copy E) {
 	v := any(entry)
 	switch e := v.(type) {
 	case []T:

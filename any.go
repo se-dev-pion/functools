@@ -18,7 +18,7 @@ func any4String(condition FuncT2Bool[string], entry string) bool {
 	return false
 }
 
-func Any[T any, E ~[]T | ~string | ~chan T](condition FuncT2Bool[T], entry E) bool {
+func Any[T any, E Sequence[T] | ~string](condition FuncT2Bool[T], entry E) bool {
 	v := any(entry)
 	switch e := v.(type) {
 	case []T:

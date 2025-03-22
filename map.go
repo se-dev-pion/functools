@@ -30,7 +30,7 @@ func map4Chan[T, U any, E ~chan T, R ~chan U](handler FuncT2R[T, U], entry E) Fu
 	}
 }
 
-func Map[R ~[]U | ~string | ~chan U, T, U any, E ~[]T | ~string | ~chan T](handler FuncT2R[T, U], entry E) FuncNone2T[R] {
+func Map[R Sequence[U] | ~string, T, U any, E Sequence[T] | ~string](handler FuncT2R[T, U], entry E) FuncNone2T[R] {
 	v := any(entry)
 	switch e := v.(type) {
 	case []T:

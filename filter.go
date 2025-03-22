@@ -36,7 +36,7 @@ func filter4Chan[T any, E ~chan T](condition FuncT2Bool[T], entry E) FuncNone2T[
 	}
 }
 
-func Filter[T any, E ~[]T | ~string | ~chan T](condition FuncT2Bool[T], entry E) FuncNone2T[E] {
+func Filter[T any, E Sequence[T] | ~string](condition FuncT2Bool[T], entry E) FuncNone2T[E] {
 	v := any(entry)
 	switch e := v.(type) {
 	case []T:
