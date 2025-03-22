@@ -41,6 +41,7 @@ func reduce4String(handler FuncMergeT[string], entry string, initial ...string) 
 	}
 }
 
+// Reduce calculates the progressive processing of elements in the input sequence using the specified function to obtain the result
 func Reduce[T any, E Sequence[T] | ~string](handler FuncMergeT[T], entry E, initial ...T) FuncNone2T[T] {
 	v := any(entry)
 	switch e := v.(type) {

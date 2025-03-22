@@ -36,6 +36,7 @@ func filter4Chan[T any, E ~chan T](condition FuncT2Bool[T], entry E) FuncNone2T[
 	}
 }
 
+// Filter creates a new sequence consisting of elements from the input sequence that meet the conditions.
 func Filter[T any, E Sequence[T] | ~string](condition FuncT2Bool[T], entry E) FuncNone2T[E] {
 	v := any(entry)
 	switch e := v.(type) {

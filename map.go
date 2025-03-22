@@ -30,6 +30,7 @@ func map4Chan[T, U any, E ~chan T, R ~chan U](handler FuncT2R[T, U], entry E) Fu
 	}
 }
 
+// Map creates a new sequence composed of elements transformed from the input sequence.
 func Map[R Sequence[U] | ~string, T, U any, E Sequence[T] | ~string](handler FuncT2R[T, U], entry E) FuncNone2T[R] {
 	v := any(entry)
 	switch e := v.(type) {
