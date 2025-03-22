@@ -1,6 +1,7 @@
 package functools
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -50,4 +51,36 @@ func TestMap(t *testing.T) {
 			})
 		})
 	})
+}
+
+func ExampleMap() {
+	// [slice]
+	{
+		arr := []int{1, 2, 3, 4, 5}
+		f := func(x int) float64 {
+			return float64(x*2) / 10
+		}
+		fmt.Println(Map[[]float64](f, arr)())
+	} // [/]
+	// [string]
+	{
+		seq := "golang"
+		fmt.Println(Map[string](strings.ToUpper, seq)())
+	} // [/]
+	// [chan]
+	{
+		ch := make(chan int, 10)
+		for i := 1; i <= 5; i++ {
+			ch <- i
+		}
+		f := func(x int) float64 {
+			return float64(x*2) / 10
+		}
+		mapped := Map[chan float64](f, ch)()
+		fmt.Println(extractChanElements(mapped))
+	} // [/]
+	// Output:
+	// [0.2 0.4 0.6 0.8 1]
+	// GOLANG
+	// [0.2 0.4 0.6 0.8 1]
 }

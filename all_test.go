@@ -1,6 +1,7 @@
 package functools
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/smartystreets/goconvey/convey"
@@ -48,4 +49,44 @@ func TestAll(t *testing.T) {
 			})
 		})
 	})
+}
+
+func ExampleAll() {
+	// [slice]
+	{
+		arr := []int{1, 2, 3, 4, 5}
+		f := func(x int) bool {
+			return x%2 == 0
+		}
+		fmt.Println(All(f, arr))
+		fmt.Println(All(f, []int{}))
+	} // [/]
+	// [string]
+	{
+		seq := "golang"
+		f := func(x string) bool {
+			return x >= "g"
+		}
+		fmt.Println(All(f, seq))
+		fmt.Println(All(f, ""))
+	} // [/]
+	// [chan]
+	{
+		ch := make(chan int, 10)
+		for i := 1; i <= 5; i++ {
+			ch <- i
+		}
+		f := func(x int) bool {
+			return x%2 == 0
+		}
+		fmt.Println(All(f, ch))
+		fmt.Println(All(f, make(chan int, 1)))
+	} // [/]
+	// Output:
+	// false
+	// true
+	// false
+	// true
+	// false
+	// true
 }

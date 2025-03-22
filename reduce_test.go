@@ -1,6 +1,7 @@
 package functools
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -57,4 +58,44 @@ func TestReduce(t *testing.T) {
 			assert.Equal(t, total+6, Reduce(f, ch, 6)())
 		})
 	})
+}
+
+func ExampleReduce() {
+	// [slice]
+	{
+		arr := []int{1, 2, 3, 4, 5}
+		f := func(a, b int) int {
+			return a + b
+		}
+		fmt.Println(Reduce(f, arr)())
+		fmt.Println(Reduce(f, arr, 6)())
+	} // [/]
+	// [string]
+	{
+		seq := "golang"
+		f := func(a, b string) string {
+			return strings.ToUpper(a) + strings.ToUpper(b)
+		}
+		fmt.Println(Reduce(f, seq)())
+		fmt.Println(Reduce(f, seq, "GOOGLE")())
+	} // [/]
+	// [chan]
+	{
+		ch := make(chan int, 10)
+		for i := 1; i <= 5; i++ {
+			ch <- i
+		}
+		f := func(a, b int) int {
+			return a + b
+		}
+		fmt.Println(Reduce(f, ch)())
+		fmt.Println(Reduce(f, ch, 6)())
+	} // [/]
+	// Output:
+	// 15
+	// 21
+	// GOLANG
+	// GOOGLEGOLANG
+	// 15
+	// 21
 }
