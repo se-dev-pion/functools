@@ -22,7 +22,7 @@ func Partial[T, R any](f FuncTs2R[T, R], params ...T) FuncTs2R[T, R] {
 	}
 }
 
-func Pipe[T any](f ...FuncT2T[T]) FuncT2T[T] {
+func Flow[T any](f ...FuncT2T[T]) FuncT2T[T] {
 	return func(param T) T {
 		output := param
 		for _, fn := range f {
