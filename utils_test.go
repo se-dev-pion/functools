@@ -180,6 +180,20 @@ func ExampleCached() {
 	// 55
 }
 
+func BenchmarkCached(b *testing.B) {
+	b.Run("raw", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			fibonacci(10)
+		}
+	})
+	f := Cached(fibonacci)
+	b.Run("cached", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			f(10)
+		}
+	})
+}
+
 func TestCopy(t *testing.T) {
 	convey.Convey("copy", t, func() {
 		convey.Convey("slice", func() {
