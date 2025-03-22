@@ -65,6 +65,28 @@ func Cached[T comparable, R any](f FuncT2R[T, R]) FuncT2R[T, R] {
 	}
 }
 
+func extractChanElements[T any](ch chan T) []T {
+	output := make([]T, len(ch))
+	i := 0
+	for {
+		select {
+		case item, ok := <-ch:
+			if !ok {
+				goto END
+			}
+			output[i] = item
+			i++
+		default:
+			goto END
+		}
+	}
+END:
+	for _, item := range output {
+		ch <- item
+	}
+	return output
+}
+
 func Copy[T any, E ~[]T | ~chan T](entry E) E {
 	v := any(entry)
 	switch e := v.(type) {
@@ -72,24 +94,8 @@ func Copy[T any, E ~[]T | ~chan T](entry E) E {
 		return any(Pack(e...)).(E)
 	case chan T:
 		output := make(chan T, cap(e))
-		cache := make([]T, len(e))
-		i := 0
-		for {
-			select {
-			case item, ok := <-e:
-				if !ok {
-					goto END
-				}
-				cache[i] = item
-				i++
-				output <- item
-			default:
-				goto END
-			}
-		}
-	END:
-		for _, item := range cache {
-			e <- item
+		for _, item := range extractChanElements(e) {
+			output <- item
 		}
 		return any(output).(E)
 	default:

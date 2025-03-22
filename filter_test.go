@@ -31,19 +31,6 @@ func TestFilter(t *testing.T) {
 			return x%2 == 0
 		}
 		filtered := Filter(f, ch)()
-		nums := make([]int, 0)
-		for {
-			select {
-			case v, ok := <-filtered:
-				if !ok {
-					goto END
-				}
-				nums = append(nums, v)
-			default:
-				goto END
-			}
-		}
-	END:
-		assert.Equal(t, []int{2, 4}, nums)
+		assert.Equal(t, []int{2, 4}, extractChanElements(filtered))
 	})
 }

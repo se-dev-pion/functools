@@ -32,19 +32,6 @@ func TestMap(t *testing.T) {
 			return float64(x*2) / 10
 		}
 		mapped := Map[chan float64](f, ch)()
-		nums := make([]float64, 0)
-		for {
-			select {
-			case v, ok := <-mapped:
-				if !ok {
-					goto END
-				}
-				nums = append(nums, v)
-			default:
-				goto END
-			}
-		}
-	END:
-		assert.Equal(t, []float64{0.2, 0.4, 0.6, 0.8, 1}, nums)
+		assert.Equal(t, []float64{0.2, 0.4, 0.6, 0.8, 1}, extractChanElements(mapped))
 	})
 }

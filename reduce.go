@@ -41,42 +41,6 @@ func reduce4String(handler FuncMergeT[string], entry string, initial ...string) 
 	}
 }
 
-func reduce4Chan[T any, E ~chan T](handler FuncMergeT[T], entry E, initial ...T) FuncNone2T[T] {
-	if len(initial)|len(entry) == 0 {
-		return nil
-	}
-	return func() (result T) {
-		cache := make([]T, len(entry))
-		i := 0
-		switch {
-		case len(initial) > 0:
-			result = initial[0]
-		case len(entry) > 0:
-			result = <-entry
-			cache[i] = result
-			i++
-		}
-		for {
-			select {
-			case item, ok := <-entry:
-				if !ok {
-					goto END
-				}
-				cache[i] = item
-				i++
-				result = handler(result, item)
-			default:
-				goto END
-			}
-		}
-	END:
-		for _, item := range cache {
-			entry <- item
-		}
-		return
-	}
-}
-
 func Reduce[T any, E ~[]T | ~string | ~chan T](handler FuncMergeT[T], entry E, initial ...T) FuncNone2T[T] {
 	v := any(entry)
 	switch e := v.(type) {
@@ -88,7 +52,7 @@ func Reduce[T any, E ~[]T | ~string | ~chan T](handler FuncMergeT[T], entry E, i
 		}
 		return any(reduce4String(any(handler).(FuncMergeT[string]), e, any(initial).([]string)...)).(FuncNone2T[T])
 	case chan T:
-		return reduce4Chan(handler, e, initial...)
+		return reduce4Slice(handler, extractChanElements(e), initial...)
 	default:
 		return nil
 	}

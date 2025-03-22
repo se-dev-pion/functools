@@ -18,30 +18,6 @@ func any4String(condition FuncT2Bool[string], entry string) bool {
 	return false
 }
 
-func any4Chan[T any, E ~chan T](condition FuncT2Bool[T], entry E) bool {
-	success := false
-	cache := make([]T, len(entry))
-	i := 0
-	for {
-		select {
-		case item, ok := <-entry:
-			if !ok {
-				goto END
-			}
-			cache[i] = item
-			i++
-			success = success || condition(item)
-		default:
-			goto END
-		}
-	}
-END:
-	for _, item := range cache {
-		entry <- item
-	}
-	return success
-}
-
 func Any[T any, E ~[]T | ~string | ~chan T](condition FuncT2Bool[T], entry E) bool {
 	v := any(entry)
 	switch e := v.(type) {
@@ -53,7 +29,7 @@ func Any[T any, E ~[]T | ~string | ~chan T](condition FuncT2Bool[T], entry E) bo
 		}
 		return any4String(any(condition).(FuncT2Bool[string]), e)
 	case chan T:
-		return any4Chan(condition, e)
+		return any4Slice(condition, extractChanElements(e))
 	default:
 		return false
 	}

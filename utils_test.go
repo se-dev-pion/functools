@@ -110,20 +110,7 @@ func TestCopy(t *testing.T) {
 				ch <- i
 			}
 			chCopy := Copy[int](ch)
-			nums := make([]int, 0)
-			for {
-				select {
-				case v, ok := <-chCopy:
-					if !ok {
-						goto END
-					}
-					nums = append(nums, v)
-				default:
-					goto END
-				}
-			}
-		END:
-			assert.Equal(t, []int{1, 2, 3, 4, 5}, nums)
+			assert.Equal(t, []int{1, 2, 3, 4, 5}, extractChanElements(chCopy))
 		})
 	})
 }
