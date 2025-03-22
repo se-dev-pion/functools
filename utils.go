@@ -71,14 +71,24 @@ func Copy[T any, E ~[]T | ~chan T](entry E) E {
 	case []T:
 		return any(Pack(e...)).(E)
 	case chan T:
-		cache := make(chan T, len(e))
-		defer close(cache)
-		output := make(chan T, len(e))
-		for item := range e {
-			cache <- item
-			output <- item
+		output := make(chan T, cap(e))
+		cache := make([]T, len(e))
+		i := 0
+		for {
+			select {
+			case item, ok := <-e:
+				if !ok {
+					goto END
+				}
+				cache[i] = item
+				i++
+				output <- item
+			default:
+				goto END
+			}
 		}
-		for item := range cache {
+	END:
+		for _, item := range cache {
 			e <- item
 		}
 		return any(output).(E)
