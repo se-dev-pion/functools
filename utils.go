@@ -67,6 +67,11 @@ func Cached[T comparable, R any](f FuncT2R[T, R]) FuncT2R[T, R] {
 
 func extractChanElements[T any](ch chan T) []T {
 	output := make([]T, len(ch))
+	defer func() {
+		for _, item := range output {
+			ch <- item
+		}
+	}()
 	i := 0
 	for {
 		select {
@@ -81,9 +86,6 @@ func extractChanElements[T any](ch chan T) []T {
 		}
 	}
 END:
-	for _, item := range output {
-		ch <- item
-	}
 	return output
 }
 
