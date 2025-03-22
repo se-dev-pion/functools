@@ -18,6 +18,7 @@ func any4String(condition FuncT2Bool[string], entry string) bool {
 	return false
 }
 
+// Any checks if any element in the given sequence(slice/chan/string) satisfies the specified condition.
 func Any[T any, E Sequence[T] | ~string](condition FuncT2Bool[T], entry E) bool {
 	v := any(entry)
 	switch e := v.(type) {
