@@ -1,6 +1,7 @@
 package functools
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/smartystreets/goconvey/convey"
@@ -21,11 +22,33 @@ func TestDecorate(t *testing.T) {
 	})
 }
 
+func ExampleDecorate() {
+	wrapper := func(f func(int, int) int) func(int, int) int {
+		return func(x, y int) int {
+			return 2 * f(x, y)
+		}
+	}
+	f := func(a, b int) int {
+		return a + b
+	}
+	fmt.Println(Decorate(wrapper, f)(1, 2))
+	// Output:
+	// 6
+}
+
 func TestPack(t *testing.T) {
 	convey.Convey("pack", t, func() {
 		assert.Equal(t, []int{1, 2, 3}, Pack(1, 2, 3))
 		assert.Equal(t, []string{"a", "b", "c"}, Pack("a", "b", "c"))
 	})
+}
+
+func ExamplePack() {
+	fmt.Println(Pack(1, 2, 3))
+	fmt.Println(Pack("a", "b", "c"))
+	// Output:
+	// [1 2 3]
+	// [a b c]
 }
 
 func TestLazy(t *testing.T) {
@@ -35,6 +58,15 @@ func TestLazy(t *testing.T) {
 		}
 		assert.Equal(t, f(2), Lazy(f, 2)())
 	})
+}
+
+func ExampleLazy() {
+	f := func(x int) int {
+		return x * 2
+	}
+	fmt.Println(Lazy(f, 2)())
+	// Output:
+	// 4
 }
 
 func TestPartial(t *testing.T) {
@@ -51,6 +83,20 @@ func TestPartial(t *testing.T) {
 	})
 }
 
+func ExamplePartial() {
+	f := func(l ...int) int {
+		s := 0
+		for _, x := range l {
+			s += x
+		}
+		return s
+	}
+	g := Partial(f, 1, 2, 3)
+	fmt.Println(g(4))
+	// Output:
+	// 10
+}
+
 func TestFlow(t *testing.T) {
 	convey.Convey("flow", t, func() {
 		f1 := func(a int) int {
@@ -64,6 +110,21 @@ func TestFlow(t *testing.T) {
 		}
 		assert.Equal(t, 16, Flow(f1, f2, f3)(1))
 	})
+}
+
+func ExampleFlow() {
+	f1 := func(a int) int {
+		return a + 1
+	}
+	f2 := func(a int) int {
+		return a * 2
+	}
+	f3 := func(a int) int {
+		return a * a
+	}
+	fmt.Println(Flow(f1, f2, f3)(1))
+	// Output:
+	// 16
 }
 
 func TestBatch(t *testing.T) {
@@ -82,6 +143,23 @@ func TestBatch(t *testing.T) {
 	})
 }
 
+func ExampleBatch() {
+	f1 := func(a int) int {
+		return a + 1
+	}
+	f2 := func(a int) int {
+		return a * 2
+	}
+	f3 := func(a int) int {
+		return a * a
+	}
+	fmt.Println(Batch(false, f1, f2, f3)(1))
+	fmt.Println(Batch(true, f1, f2, f3)(1))
+	// Output:
+	// [2 2 1]
+	// [2 2 1]
+}
+
 func fibonacci(n int) int {
 	if n <= 1 {
 		return n
@@ -96,6 +174,13 @@ func TestCached(t *testing.T) {
 			assert.Equal(t, fibonacci(10), f(10))
 		}
 	})
+}
+
+func ExampleCached() {
+	f := Cached(fibonacci)
+	fmt.Println(f(10))
+	// Output:
+	// 55
 }
 
 func TestCopy(t *testing.T) {
@@ -113,4 +198,24 @@ func TestCopy(t *testing.T) {
 			assert.Equal(t, []int{1, 2, 3, 4, 5}, extractChanElements(chCopy))
 		})
 	})
+}
+
+func ExampleCopy() {
+	// [slice]
+	{
+		arr := []int{1, 2, 3, 4, 5}
+		fmt.Println(Copy[int](arr))
+	} // [/]
+	// [chan]
+	{
+		ch := make(chan int, 10)
+		for i := 1; i <= 5; i++ {
+			ch <- i
+		}
+		chCopy := Copy[int](ch)
+		fmt.Println(extractChanElements(chCopy))
+	} // [/]
+	// Output:
+	// [1 2 3 4 5]
+	// [1 2 3 4 5]
 }
