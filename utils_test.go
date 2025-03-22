@@ -138,8 +138,7 @@ func TestBatch(t *testing.T) {
 		f3 := func(a int) int {
 			return a * a
 		}
-		assert.Equal(t, []int{2, 2, 1}, Batch(false, f1, f2, f3)(1))
-		assert.Equal(t, []int{2, 2, 1}, Batch(true, f1, f2, f3)(1))
+		assert.Equal(t, []int{2, 2, 1}, Batch(f1, f2, f3)(1))
 	})
 }
 
@@ -153,10 +152,8 @@ func ExampleBatch() {
 	f3 := func(a int) int {
 		return a * a
 	}
-	fmt.Println(Batch(false, f1, f2, f3)(1))
-	fmt.Println(Batch(true, f1, f2, f3)(1))
+	fmt.Println(Batch(f1, f2, f3)(1))
 	// Output:
-	// [2 2 1]
 	// [2 2 1]
 }
 

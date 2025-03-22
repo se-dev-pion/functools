@@ -1,7 +1,5 @@
 package functools
 
-import "sync"
-
 // Decorate wraps something with a function, mainly used for enhancing a function with another function.
 func Decorate[T any](wrapper FuncT2T[T], f T) T {
 	return wrapper(f)
@@ -38,23 +36,11 @@ func Flow[T any](f ...FuncT2T[T]) FuncT2T[T] {
 }
 
 // Batch creates a function merging the handling process of input functions.
-func Batch[T any](parallel bool, f ...FuncT2T[T]) FuncT2Ts[T] {
+func Batch[T any](f ...FuncT2T[T]) FuncT2Ts[T] {
 	return func(param T) []T {
 		output := make([]T, len(f))
-		if !parallel {
-			for i, fn := range f {
-				output[i] = fn(param)
-			}
-		} else {
-			var wg sync.WaitGroup
-			wg.Add(len(f))
-			for i, fn := range f {
-				go func(idx int, fun FuncT2T[T]) {
-					output[idx] = fun(param)
-					wg.Done()
-				}(i, fn)
-			}
-			wg.Wait()
+		for i, fn := range f {
+			output[i] = fn(param)
 		}
 		return output
 	}
