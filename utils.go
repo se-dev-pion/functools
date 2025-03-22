@@ -87,18 +87,17 @@ END:
 	return output
 }
 
-func Copy[T any, E ~[]T | ~chan T](entry E) E {
+func Copy[T any, E ~[]T | ~chan T](entry E) (copy E) {
 	v := any(entry)
 	switch e := v.(type) {
 	case []T:
-		return any(Pack(e...)).(E)
+		copy = any(Pack(e...)).(E)
 	case chan T:
 		output := make(chan T, cap(e))
 		for _, item := range extractChanElements(e) {
 			output <- item
 		}
-		return any(output).(E)
-	default:
-		return nil
+		copy = any(output).(E)
 	}
+	return
 }

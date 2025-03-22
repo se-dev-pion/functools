@@ -43,12 +43,12 @@ func Filter[T any, E ~[]T | ~string | ~chan T](condition FuncT2Bool[T], entry E)
 		return any(filter4Slice(condition, e)).(FuncNone2T[E])
 	case string:
 		if _, ok := any(*new(T)).(string); !ok {
-			return nil
+			goto END
 		}
 		return any(filter4String(any(condition).(FuncT2Bool[string]), e)).(FuncNone2T[E])
 	case chan T:
 		return any(filter4Chan(condition, e)).(FuncNone2T[E])
-	default:
-		return nil
 	}
+END:
+	return nil
 }

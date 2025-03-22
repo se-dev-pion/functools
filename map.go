@@ -37,15 +37,15 @@ func Map[R ~[]U | ~string | ~chan U, T, U any, E ~[]T | ~string | ~chan T](handl
 		return any(map4Slice[T, U, []T, []U](handler, e)).(FuncNone2T[R])
 	case string:
 		if _, ok := any(*new(T)).(string); !ok {
-			return nil
+			goto END
 		}
 		if _, ok := any(*new(U)).(string); !ok {
-			return nil
+			goto END
 		}
 		return any(map4String(FuncT2T[string](any(handler).(FuncT2R[string, string])), e)).(FuncNone2T[R])
 	case chan T:
 		return any(map4Chan[T, U, chan T, chan U](handler, e)).(FuncNone2T[R])
-	default:
-		return nil
 	}
+END:
+	return nil
 }

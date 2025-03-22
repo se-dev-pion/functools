@@ -25,12 +25,12 @@ func All[T any, E ~[]T | ~string | ~chan T](condition FuncT2Bool[T], entry E) bo
 		return all4Slice(condition, e)
 	case string:
 		if _, ok := any(*new(T)).(string); !ok {
-			return false
+			goto END
 		}
 		return all4String(any(condition).(FuncT2Bool[string]), e)
 	case chan T:
 		return all4Slice(condition, extractChanElements(e))
-	default:
-		return false
 	}
+END:
+	return false
 }

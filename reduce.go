@@ -48,12 +48,12 @@ func Reduce[T any, E ~[]T | ~string | ~chan T](handler FuncMergeT[T], entry E, i
 		return reduce4Slice(handler, e, initial...)
 	case string:
 		if _, ok := any(*new(T)).(string); !ok {
-			return nil
+			goto END
 		}
 		return any(reduce4String(any(handler).(FuncMergeT[string]), e, any(initial).([]string)...)).(FuncNone2T[T])
 	case chan T:
 		return reduce4Slice(handler, extractChanElements(e), initial...)
-	default:
-		return nil
 	}
+END:
+	return nil
 }
