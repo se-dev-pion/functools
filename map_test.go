@@ -22,6 +22,16 @@ func TestMap(t *testing.T) {
 	convey.Convey("string", t, func() {
 		seq := "golang"
 		assert.Equal(t, "GOLANG", Map[string](strings.ToUpper, seq)())
+		convey.Convey("invalid func", func() {
+			f1 := func(x int) bool {
+				return x > 0
+			}
+			assert.Nil(t, Map[string](f1, seq))
+			f2 := func(x string) int {
+				return len(x)
+			}
+			assert.Nil(t, Map[string](f2, seq))
+		})
 	})
 	convey.Convey("chan", t, func() {
 		ch := make(chan int, 10)
@@ -33,5 +43,11 @@ func TestMap(t *testing.T) {
 		}
 		mapped := Map[chan float64](f, ch)()
 		assert.Equal(t, []float64{0.2, 0.4, 0.6, 0.8, 1}, extractChanElements(mapped))
+		convey.Convey("close chan", func() {
+			close(ch)
+			assert.Panics(t, func() {
+				Map[chan float64](f, ch)()
+			})
+		})
 	})
 }

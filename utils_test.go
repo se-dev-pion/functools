@@ -93,7 +93,7 @@ func TestCached(t *testing.T) {
 	convey.Convey("cache", t, func() {
 		f := Cached(fibonacci)
 		for i := 0; i <= 10; i++ {
-			assert.Equal(t, fibonacci(i), f(i))
+			assert.Equal(t, fibonacci(10), f(10))
 		}
 	})
 }

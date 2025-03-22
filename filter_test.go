@@ -21,6 +21,12 @@ func TestFilter(t *testing.T) {
 			return x >= "g"
 		}
 		assert.Equal(t, "golng", Filter(f, seq)())
+		convey.Convey("invalid func", func() {
+			f := func(x int) bool {
+				return x > 0
+			}
+			assert.Nil(t, Filter(f, seq))
+		})
 	})
 	convey.Convey("chan", t, func() {
 		ch := make(chan int, 10)
@@ -32,5 +38,11 @@ func TestFilter(t *testing.T) {
 		}
 		filtered := Filter(f, ch)()
 		assert.Equal(t, []int{2, 4}, extractChanElements(filtered))
+		convey.Convey("close chan", func() {
+			close(ch)
+			assert.Panics(t, func() {
+				Any(f, ch)
+			})
+		})
 	})
 }

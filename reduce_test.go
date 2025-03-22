@@ -19,6 +19,9 @@ func TestReduce(t *testing.T) {
 		convey.Convey("initial", func() {
 			assert.Equal(t, total+6, Reduce(f, arr, 6)())
 		})
+		convey.Convey("no initial", func() {
+			assert.Nil(t, Reduce(f, []int{}))
+		})
 	})
 	convey.Convey("string", t, func() {
 		seq := "golang"
@@ -29,6 +32,15 @@ func TestReduce(t *testing.T) {
 		assert.Equal(t, total, Reduce(f, seq)())
 		convey.Convey("initial", func() {
 			assert.Equal(t, "GOOGLE"+total, Reduce(f, seq, "GOOGLE")())
+		})
+		convey.Convey("no initial", func() {
+			assert.Nil(t, Reduce(f, ""))
+		})
+		convey.Convey("invalid func", func() {
+			f := func(a, b int) int {
+				return a + b
+			}
+			assert.Nil(t, Reduce(f, seq))
 		})
 	})
 	convey.Convey("chan", t, func() {
