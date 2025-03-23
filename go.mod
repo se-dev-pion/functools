@@ -1,6 +1,6 @@
 module github.com/se-dev-pion/functools
 
-go 1.18.0
+go 1.18
 
 require (
 	github.com/smartystreets/goconvey v1.8.1
