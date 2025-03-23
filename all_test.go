@@ -90,3 +90,60 @@ func ExampleAll() {
 	// false
 	// true
 }
+
+func BenchmarkAll(b *testing.B) {
+	// [slice]
+	{
+		arr := []int{1, 2, 3, 4, 5}
+		f1 := func(x int) bool {
+			return x%2 == 0
+		}
+		b.Run("slice", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				All(f1, arr)
+			}
+		})
+		b.Run("slice raw", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				All4Slice(f1, arr)
+			}
+		})
+	} // [/]
+	// [string]
+	{
+		seq := "golang"
+		f2 := func(x string) bool {
+			return x >= "g"
+		}
+		b.Run("string", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				All(f2, seq)
+			}
+		})
+		b.Run("string raw", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				All4String(f2, seq)
+			}
+		})
+	} // [/]
+	// [chan]
+	{
+		ch := make(chan int, 10)
+		for i := 1; i <= 5; i++ {
+			ch <- i
+		}
+		f := func(x int) bool {
+			return x%2 == 0
+		}
+		b.Run("chan", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				All(f, ch)
+			}
+		})
+		b.Run("chan raw", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				All4Chan(f, ch)
+			}
+		})
+	} // [/]
+}
