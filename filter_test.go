@@ -82,3 +82,66 @@ func ExampleFilter() {
 	// golng
 	// [2 4]
 }
+
+func BenchmarkFilter(b *testing.B) {
+	// [slice]
+	{
+		arr := []int{1, 2, 3, 4, 5}
+		f := func(x int) bool {
+			return x%2 == 0
+		}
+		b.Run("slice", func(b *testing.B) {
+			ff := Filter(f, arr)
+			for i := 0; i < b.N; i++ {
+				ff()
+			}
+		})
+		b.Run("slice raw", func(b *testing.B) {
+			ff := Filter4Slice(f, arr)
+			for i := 0; i < b.N; i++ {
+				ff()
+			}
+		})
+	} // [/]
+	// [string]
+	{
+		seq := "golang"
+		f := func(x string) bool {
+			return x >= "g"
+		}
+		b.Run("string", func(b *testing.B) {
+			ff := Filter(f, seq)
+			for i := 0; i < b.N; i++ {
+				ff()
+			}
+		})
+		b.Run("string raw", func(b *testing.B) {
+			ff := Filter4String(f, seq)
+			for i := 0; i < b.N; i++ {
+				ff()
+			}
+		})
+	} // [/]
+	// [chan]
+	{
+		ch := make(chan int, 10)
+		for i := 1; i <= 5; i++ {
+			ch <- i
+		}
+		f := func(x int) bool {
+			return x%2 == 0
+		}
+		b.Run("chan", func(b *testing.B) {
+			ff := Filter(f, ch)
+			for i := 0; i < b.N; i++ {
+				ff()
+			}
+		})
+		b.Run("chan raw", func(b *testing.B) {
+			ff := Filter4Chan(f, ch)
+			for i := 0; i < b.N; i++ {
+				ff()
+			}
+		})
+	} // [/]
+}
