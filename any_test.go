@@ -90,3 +90,60 @@ func ExampleAny() {
 	// true
 	// false
 }
+
+func BenchmarkAny(b *testing.B) {
+	// [slice]
+	{
+		arr := []int{1, 2, 3, 4, 5}
+		f := func(x int) bool {
+			return x%2 == 0
+		}
+		b.Run("slice", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				Any(f, arr)
+			}
+		})
+		b.Run("slice raw", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				Any4Slice(f, arr)
+			}
+		})
+	} // [/]
+	// [string]
+	{
+		seq := "golang"
+		f := func(x string) bool {
+			return x >= "g"
+		}
+		b.Run("string", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				Any(f, seq)
+			}
+		})
+		b.Run("string raw", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				Any4String(f, seq)
+			}
+		})
+	} // [/]
+	// [chan]
+	{
+		ch := make(chan int, 10)
+		for i := 1; i <= 5; i++ {
+			ch <- i
+		}
+		f := func(x int) bool {
+			return x%2 == 0
+		}
+		b.Run("chan", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				Any(f, ch)
+			}
+		})
+		b.Run("chan raw", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				Any4Chan(f, ch)
+			}
+		})
+	} // [/]
+}
