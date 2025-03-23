@@ -1,5 +1,7 @@
 package functools
 
+import "strings"
+
 func Map4Slice[T, U any, E ~[]T, R []U](handler FuncT2R[T, U], entry E) FuncNone2T[R] {
 	return func() R {
 		output := make(R, len(entry))
@@ -12,11 +14,12 @@ func Map4Slice[T, U any, E ~[]T, R []U](handler FuncT2R[T, U], entry E) FuncNone
 
 func Map4String(handler FuncT2T[string], entry string) FuncNone2T[string] {
 	return func() string {
-		output := make([]rune, 0)
+		var builder strings.Builder
+		builder.Grow(len(entry))
 		for _, charCode := range entry {
-			output = append(output, []rune(handler(string(charCode)))...)
+			builder.WriteString(handler(string(charCode)))
 		}
-		return string(output)
+		return builder.String()
 	}
 }
 

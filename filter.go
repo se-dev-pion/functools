@@ -1,5 +1,7 @@
 package functools
 
+import "strings"
+
 func Filter4Slice[T any, E ~[]T](condition FuncT2Bool[T], entry E) FuncNone2T[E] {
 	return func() E {
 		output := make(E, 0)
@@ -14,13 +16,14 @@ func Filter4Slice[T any, E ~[]T](condition FuncT2Bool[T], entry E) FuncNone2T[E]
 
 func Filter4String(condition FuncT2Bool[string], entry string) FuncNone2T[string] {
 	return func() string {
-		output := make([]rune, 0)
+		var builder strings.Builder
+		builder.Grow(len(entry))
 		for _, charCode := range entry {
 			if condition(string(charCode)) {
-				output = append(output, charCode)
+				builder.WriteRune(charCode)
 			}
 		}
-		return string(output)
+		return builder.String()
 	}
 }
 
