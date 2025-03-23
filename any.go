@@ -1,6 +1,6 @@
 package functools
 
-func any4Slice[T any, E ~[]T](condition FuncT2Bool[T], entry E) bool {
+func Any4Slice[T any, E ~[]T](condition FuncT2Bool[T], entry E) bool {
 	for _, item := range entry {
 		if condition(item) {
 			return true
@@ -9,7 +9,7 @@ func any4Slice[T any, E ~[]T](condition FuncT2Bool[T], entry E) bool {
 	return false
 }
 
-func any4String(condition FuncT2Bool[string], entry string) bool {
+func Any4String(condition FuncT2Bool[string], entry string) bool {
 	for _, charCode := range entry {
 		if condition(string(charCode)) {
 			return true
@@ -18,19 +18,23 @@ func any4String(condition FuncT2Bool[string], entry string) bool {
 	return false
 }
 
+func Any4Chan[T any, E ~chan T](condition FuncT2Bool[T], entry E) bool {
+	return Any4Slice(condition, extractChanElements(entry))
+}
+
 // Any checks if any element in the given sequence(slice/chan/string) satisfies the specified condition.
 func Any[T any, E Sequence[T] | ~string](condition FuncT2Bool[T], entry E) bool {
 	v := any(entry)
 	switch e := v.(type) {
 	case []T:
-		return any4Slice(condition, e)
+		return Any4Slice(condition, e)
 	case string:
 		if _, ok := any(*new(T)).(string); !ok {
 			goto END
 		}
-		return any4String(any(condition).(FuncT2Bool[string]), e)
+		return Any4String(any(condition).(FuncT2Bool[string]), e)
 	case chan T:
-		return any4Slice(condition, extractChanElements(e))
+		return Any4Chan(condition, e)
 	}
 END:
 	return false
