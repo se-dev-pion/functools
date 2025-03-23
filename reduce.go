@@ -1,6 +1,6 @@
 package functools
 
-func reduce4Slice[T any, E ~[]T](handler FuncMergeT[T], entry E, initial ...T) FuncNone2T[T] {
+func Reduce4Slice[T any, E ~[]T](handler FuncMergeT[T], entry E, initial ...T) FuncNone2T[T] {
 	var result T
 	switch {
 	case len(initial) > 0:
@@ -19,7 +19,7 @@ func reduce4Slice[T any, E ~[]T](handler FuncMergeT[T], entry E, initial ...T) F
 	}
 }
 
-func reduce4String(handler FuncMergeT[string], entry string, initial ...string) FuncNone2T[string] {
+func Reduce4String(handler FuncMergeT[string], entry string, initial ...string) FuncNone2T[string] {
 	var result string
 	switch {
 	case len(initial) > 0:
@@ -41,19 +41,23 @@ func reduce4String(handler FuncMergeT[string], entry string, initial ...string) 
 	}
 }
 
+func Reduce4Chan[T any, E ~chan T](handler FuncMergeT[T], entry E, initial ...T) FuncNone2T[T] {
+	return Reduce4Slice(handler, extractChanElements(entry), initial...)
+}
+
 // Reduce calculates the progressive processing of elements in the input sequence using the specified function to obtain the result
 func Reduce[T any, E Sequence[T] | ~string](handler FuncMergeT[T], entry E, initial ...T) FuncNone2T[T] {
 	v := any(entry)
 	switch e := v.(type) {
 	case []T:
-		return reduce4Slice(handler, e, initial...)
+		return Reduce4Slice(handler, e, initial...)
 	case string:
 		if _, ok := any(*new(T)).(string); !ok {
 			goto END
 		}
-		return any(reduce4String(any(handler).(FuncMergeT[string]), e, any(initial).([]string)...)).(FuncNone2T[T])
+		return any(Reduce4String(any(handler).(FuncMergeT[string]), e, any(initial).([]string)...)).(FuncNone2T[T])
 	case chan T:
-		return reduce4Slice(handler, extractChanElements(e), initial...)
+		return Reduce4Chan(handler, e, initial...)
 	}
 END:
 	return nil
