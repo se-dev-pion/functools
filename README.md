@@ -22,6 +22,4 @@ Alternatively, use `go get`:
 go get -u github.com/se-dev-pion/functools
 ```
 
-### Examples
-
-Search `github.com/se-dev-pion/functools` on [Go Packages](https://pkg.go.dev/) and then you can see examples in the library document.
+### [Examples](https://pkg.go.dev/github.com/se-dev-pion/functools#pkg-examples)
