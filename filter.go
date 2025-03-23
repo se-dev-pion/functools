@@ -1,6 +1,6 @@
 package functools
 
-func filter4Slice[T any, E ~[]T](condition FuncT2Bool[T], entry E) FuncNone2T[E] {
+func Filter4Slice[T any, E ~[]T](condition FuncT2Bool[T], entry E) FuncNone2T[E] {
 	return func() E {
 		output := make(E, 0)
 		for _, item := range entry {
@@ -12,7 +12,7 @@ func filter4Slice[T any, E ~[]T](condition FuncT2Bool[T], entry E) FuncNone2T[E]
 	}
 }
 
-func filter4String(condition FuncT2Bool[string], entry string) FuncNone2T[string] {
+func Filter4String(condition FuncT2Bool[string], entry string) FuncNone2T[string] {
 	return func() string {
 		output := make([]rune, 0)
 		for _, charCode := range entry {
@@ -24,7 +24,7 @@ func filter4String(condition FuncT2Bool[string], entry string) FuncNone2T[string
 	}
 }
 
-func filter4Chan[T any, E ~chan T](condition FuncT2Bool[T], entry E) FuncNone2T[E] {
+func Filter4Chan[T any, E ~chan T](condition FuncT2Bool[T], entry E) FuncNone2T[E] {
 	return func() E {
 		output := make(E, cap(entry))
 		for _, item := range extractChanElements(entry) {
@@ -41,14 +41,14 @@ func Filter[T any, E Sequence[T] | ~string](condition FuncT2Bool[T], entry E) Fu
 	v := any(entry)
 	switch e := v.(type) {
 	case []T:
-		return any(filter4Slice(condition, e)).(FuncNone2T[E])
+		return any(Filter4Slice(condition, e)).(FuncNone2T[E])
 	case string:
 		if _, ok := any(*new(T)).(string); !ok {
 			goto END
 		}
-		return any(filter4String(any(condition).(FuncT2Bool[string]), e)).(FuncNone2T[E])
+		return any(Filter4String(any(condition).(FuncT2Bool[string]), e)).(FuncNone2T[E])
 	case chan T:
-		return any(filter4Chan(condition, e)).(FuncNone2T[E])
+		return any(Filter4Chan(condition, e)).(FuncNone2T[E])
 	}
 END:
 	return nil
