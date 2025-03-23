@@ -84,3 +84,63 @@ func ExampleMap() {
 	// GOLANG
 	// [0.2 0.4 0.6 0.8 1]
 }
+
+func BenchmarkMap(b *testing.B) {
+	// [slice]
+	{
+		arr := []int{1, 2, 3, 4, 5}
+		f := func(x int) float64 {
+			return float64(x*2) / 10
+		}
+		b.Run("slice", func(b *testing.B) {
+			ff := Map[[]float64](f, arr)
+			for i := 0; i < b.N; i++ {
+				ff()
+			}
+		})
+		b.Run("slice raw", func(b *testing.B) {
+			ff := Map4Slice(f, arr)
+			for i := 0; i < b.N; i++ {
+				ff()
+			}
+		})
+	} // [/]
+	// [string]
+	{
+		seq := "golang"
+		b.Run("string", func(b *testing.B) {
+			ff := Map[string](strings.ToUpper, seq)
+			for i := 0; i < b.N; i++ {
+				ff()
+			}
+		})
+		b.Run("string raw", func(b *testing.B) {
+			ff := Map4String(strings.ToUpper, seq)
+			for i := 0; i < b.N; i++ {
+				ff()
+			}
+		})
+	} // [/]
+	// [chan]
+	{
+		ch := make(chan int, 10)
+		for i := 1; i <= 5; i++ {
+			ch <- i
+		}
+		f := func(x int) float64 {
+			return float64(x*2) / 10
+		}
+		b.Run("chan", func(b *testing.B) {
+			ff := Map[chan float64](f, ch)
+			for i := 0; i < b.N; i++ {
+				ff()
+			}
+		})
+		b.Run("chan raw", func(b *testing.B) {
+			ff := Map4Chan(f, ch)
+			for i := 0; i < b.N; i++ {
+				ff()
+			}
+		})
+	} // [/]
+}
