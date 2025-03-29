@@ -19,10 +19,17 @@ jobs:
       with:
         go-version: 1.18
 
-    - run: go test -coverprofile=cover.out ./...
-    - run: go tool cover -html=cover.out -o cover.html
-    - run: rm cover.out
+    - run: go test -coverprofile=coverage.txt ./...
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: se-dev-pion/functools
+
+    - run: go tool cover -html=coverage.txt -o cover.html
+    - run: rm coverage.txt
     - uses: actions/upload-artifact@v4
       with:
         name: ut-coverage
         path: ./cover.html
+
