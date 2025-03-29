@@ -1,5 +1,7 @@
 # functools
 
+![GitHub Tag](https://img.shields.io/github/v/tag/se-dev-pion/functools?color=007d9c) ![GitHub License](https://img.shields.io/github/license/se-dev-pion/functools?color=282661) ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/se-dev-pion/functools/github-actions.yaml?label=unit-tests) ![Codecov](https://img.shields.io/codecov/c/github/se-dev-pion/functools?color=2cd495)
+
 A library enhancing functional programming support for Golang.
 
 ## Getting Started
