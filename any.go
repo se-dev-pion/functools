@@ -1,6 +1,8 @@
 package functools
 
-func Any4Slice[T any, E ~[]T](condition FuncT2Bool[T], entry E) bool {
+import "github.com/se-dev-pion/functools/types"
+
+func Any4Slice[T any, E ~[]T](condition types.FuncT2Bool[T], entry E) bool {
 	for _, item := range entry {
 		if condition(item) {
 			return true
@@ -9,7 +11,7 @@ func Any4Slice[T any, E ~[]T](condition FuncT2Bool[T], entry E) bool {
 	return false
 }
 
-func Any4String(condition FuncT2Bool[string], entry string) bool {
+func Any4String(condition types.FuncT2Bool[string], entry string) bool {
 	for _, charCode := range entry {
 		if condition(string(charCode)) {
 			return true
@@ -18,12 +20,12 @@ func Any4String(condition FuncT2Bool[string], entry string) bool {
 	return false
 }
 
-func Any4Chan[T any, E ~chan T](condition FuncT2Bool[T], entry E) bool {
+func Any4Chan[T any, E ~chan T](condition types.FuncT2Bool[T], entry E) bool {
 	return Any4Slice(condition, extractChanElements(entry))
 }
 
-// Any checks if any element in the given sequence(slice/chan/string) satisfies the specified condition.
-func Any[T any, E Sequence[T] | ~string](condition FuncT2Bool[T], entry E) bool {
+// Any checks if any element in the given types.Sequence(slice/chan/string) satisfies the specified condition.
+func Any[T any, E types.Sequence[T] | ~string](condition types.FuncT2Bool[T], entry E) bool {
 	v := any(entry)
 	switch e := v.(type) {
 	case []T:
@@ -32,7 +34,7 @@ func Any[T any, E Sequence[T] | ~string](condition FuncT2Bool[T], entry E) bool 
 		if _, ok := any(*new(T)).(string); !ok {
 			goto END
 		}
-		return Any4String(any(condition).(FuncT2Bool[string]), e)
+		return Any4String(any(condition).(types.FuncT2Bool[string]), e)
 	case chan T:
 		return Any4Chan(condition, e)
 	}

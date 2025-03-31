@@ -1,8 +1,12 @@
 package functools
 
-import "strings"
+import (
+	"strings"
 
-func Map4Slice[T, U any, E ~[]T, R []U](handler FuncT2R[T, U], entry E) FuncNone2T[R] {
+	"github.com/se-dev-pion/functools/types"
+)
+
+func Map4Slice[T, U any, E ~[]T, R []U](handler types.FuncT2R[T, U], entry E) types.FuncNone2T[R] {
 	return func() R {
 		output := make(R, len(entry))
 		for i, item := range entry {
@@ -12,7 +16,7 @@ func Map4Slice[T, U any, E ~[]T, R []U](handler FuncT2R[T, U], entry E) FuncNone
 	}
 }
 
-func Map4String(handler FuncT2T[string], entry string) FuncNone2T[string] {
+func Map4String(handler types.FuncT2T[string], entry string) types.FuncNone2T[string] {
 	return func() string {
 		var builder strings.Builder
 		builder.Grow(len(entry))
@@ -23,7 +27,7 @@ func Map4String(handler FuncT2T[string], entry string) FuncNone2T[string] {
 	}
 }
 
-func Map4Chan[T, U any, E ~chan T, R chan U](handler FuncT2R[T, U], entry E) FuncNone2T[R] {
+func Map4Chan[T, U any, E ~chan T, R chan U](handler types.FuncT2R[T, U], entry E) types.FuncNone2T[R] {
 	return func() R {
 		output := make(R, cap(entry))
 		for _, item := range extractChanElements(entry) {
@@ -33,12 +37,12 @@ func Map4Chan[T, U any, E ~chan T, R chan U](handler FuncT2R[T, U], entry E) Fun
 	}
 }
 
-// Map creates a new sequence composed of elements transformed from the input sequence.
-func Map[R Sequence[U] | ~string, T, U any, E Sequence[T] | ~string](handler FuncT2R[T, U], entry E) FuncNone2T[R] {
+// Map creates a new types.Sequence composed of elements transformed from the input types.Sequence.
+func Map[R types.Sequence[U] | ~string, T, U any, E types.Sequence[T] | ~string](handler types.FuncT2R[T, U], entry E) types.FuncNone2T[R] {
 	v := any(entry)
 	switch e := v.(type) {
 	case []T:
-		return any(Map4Slice(handler, e)).(FuncNone2T[R])
+		return any(Map4Slice(handler, e)).(types.FuncNone2T[R])
 	case string:
 		if _, ok := any(*new(T)).(string); !ok {
 			goto END
@@ -46,9 +50,9 @@ func Map[R Sequence[U] | ~string, T, U any, E Sequence[T] | ~string](handler Fun
 		if _, ok := any(*new(U)).(string); !ok {
 			goto END
 		}
-		return any(Map4String(FuncT2T[string](any(handler).(FuncT2R[string, string])), e)).(FuncNone2T[R])
+		return any(Map4String(types.FuncT2T[string](any(handler).(types.FuncT2R[string, string])), e)).(types.FuncNone2T[R])
 	case chan T:
-		return any(Map4Chan(handler, e)).(FuncNone2T[R])
+		return any(Map4Chan(handler, e)).(types.FuncNone2T[R])
 	}
 END:
 	return nil

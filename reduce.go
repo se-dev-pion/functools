@@ -1,6 +1,8 @@
 package functools
 
-func Reduce4Slice[T any, E ~[]T](handler FuncMergeT[T], entry E, initial ...T) FuncNone2T[T] {
+import "github.com/se-dev-pion/functools/types"
+
+func Reduce4Slice[T any, E ~[]T](handler types.FuncMergeT[T], entry E, initial ...T) types.FuncNone2T[T] {
 	var result T
 	switch {
 	case len(initial) > 0:
@@ -19,7 +21,7 @@ func Reduce4Slice[T any, E ~[]T](handler FuncMergeT[T], entry E, initial ...T) F
 	}
 }
 
-func Reduce4String(handler FuncMergeT[string], entry string, initial ...string) FuncNone2T[string] {
+func Reduce4String(handler types.FuncMergeT[string], entry string, initial ...string) types.FuncNone2T[string] {
 	var result string
 	switch {
 	case len(initial) > 0:
@@ -41,12 +43,12 @@ func Reduce4String(handler FuncMergeT[string], entry string, initial ...string) 
 	}
 }
 
-func Reduce4Chan[T any, E ~chan T](handler FuncMergeT[T], entry E, initial ...T) FuncNone2T[T] {
+func Reduce4Chan[T any, E ~chan T](handler types.FuncMergeT[T], entry E, initial ...T) types.FuncNone2T[T] {
 	return Reduce4Slice(handler, extractChanElements(entry), initial...)
 }
 
-// Reduce calculates the progressive processing of elements in the input sequence using the specified function to obtain the result
-func Reduce[T any, E Sequence[T] | ~string](handler FuncMergeT[T], entry E, initial ...T) FuncNone2T[T] {
+// Reduce calculates the progressive processing of elements in the input types.Sequence using the specified function to obtain the result
+func Reduce[T any, E types.Sequence[T] | ~string](handler types.FuncMergeT[T], entry E, initial ...T) types.FuncNone2T[T] {
 	v := any(entry)
 	switch e := v.(type) {
 	case []T:
@@ -55,7 +57,7 @@ func Reduce[T any, E Sequence[T] | ~string](handler FuncMergeT[T], entry E, init
 		if _, ok := any(*new(T)).(string); !ok {
 			goto END
 		}
-		return any(Reduce4String(any(handler).(FuncMergeT[string]), e, any(initial).([]string)...)).(FuncNone2T[T])
+		return any(Reduce4String(any(handler).(types.FuncMergeT[string]), e, any(initial).([]string)...)).(types.FuncNone2T[T])
 	case chan T:
 		return Reduce4Chan(handler, e, initial...)
 	}

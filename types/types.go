@@ -1,4 +1,4 @@
-package functools
+package types
 
 type FuncT2R[T, R any] func(T) R
 
